@@ -1,12 +1,13 @@
 package com.projects.blog.Services;
+
+// imports
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-
 import com.projects.blog.IServices.IBlogService;
 import com.projects.blog.Models.Blog;
 import com.projects.blog.Models.User;
@@ -17,48 +18,90 @@ import com.projects.blog.Repo.UserRepo;
 @Service
 public class BlogService implements IBlogService {
     
+    // dependency injections
     @Autowired
     private BlogRepo blogRepo;
 
     @Autowired
     private UserRepo userRepo;
 
+    // services
+
     @Override
     public Blog createBlog(Blog blog) {
-        User user = userRepo.findById(blog.getBAuthor().getUId()).get();
 
-        user.getBlogs().add(blog);
+        if(blog == null)
+            throw new RuntimeException("Blog cannot be null");
 
-        userRepo.save(user);
+        User user = userRepo.findById(blog.getAuthor()).get();
+
+        if(user == null)
+            throw new RuntimeException("User not found");
+
+        if(user.getBlogs() == null)
+            user.setBlogs(new ArrayList<String>());
+
+        user.getBlogs().add(blog.getId());
+
+        try{
+            userRepo.save(user);
+        }
+        catch(Exception e){
+            throw new RuntimeException("User not updated");
+        }
 
         return blogRepo.save(blog);
     }
 
     @Override
     public Blog getBlog(String id) {
+
+        if(id == null)
+            throw new RuntimeException("Blog id cannot be null");
+
         return blogRepo.findById(id).get();
     }
 
     @Override
     public Blog updateBlog(Blog blog) {
+
+        if(blog == null)
+            throw new RuntimeException("Blog cannot be null");
         
-        User user = userRepo.findById(blog.getBAuthor().getUId()).get();
+        User user = userRepo.findById(blog.getAuthor()).get();
 
-        user.getBlogs().add(blog);
+        if(user == null)
+            throw new RuntimeException("User not found");
 
-        userRepo.save(user);
+        user.getBlogs().add(blog.getId());
+
+        try{
+            userRepo.save(user);
+        }
+        catch(Exception e){
+            throw new RuntimeException("User not updated");
+        }
 
         return blogRepo.save(blog);
     }
 
     @Override
     public void deleteBlog(String id) {
+
+        if(id == null)
+            throw new RuntimeException("Blog id cannot be null");
+
+        try{
+            User user = userRepo.findById(blogRepo.findById(id).get().getAuthor()).get();
+            user.getBlogs().remove(id);
+            userRepo.save(user);
+        }
+        catch (Exception e) {
+            throw new RuntimeException("User not updated");
+        }
+        
         blogRepo.deleteById(id);
-        
-        User user = userRepo.findById(blogRepo.findById(id).get().getBAuthor().getUId()).get();
-        user.getBlogs().remove(blogRepo.findById(id).get());
-        userRepo.save(user);
-        
+            
         if(blogRepo.findById(id) != null)
             throw new RuntimeException("Blog not deleted");
     }
@@ -70,12 +113,30 @@ public class BlogService implements IBlogService {
 
     @Override
     public List<Blog> getBlogsByUser(String userId) {
-        return userRepo.findById(userId).get().getBlogs();
+
+        if(userId == null)
+            throw new RuntimeException("User id cannot be null");
+        else if(userRepo.findById(userId) == null)
+            throw new RuntimeException("User not found");
+
+        List<Blog> blogs = blogRepo.findByAuthor(userId);
+
+        if(blogs == null)
+            throw new RuntimeException("No blogs found");
+
+        return blogs;
     }
 
     @Override
     public User findUserByBlog(String blogId) {
-        return blogRepo.findById(blogId).get().getBAuthor();
+        String userId = blogRepo.findById(blogId).get().getAuthor();
+
+        if(userId == null)
+            throw new RuntimeException("User id cannot be null");
+        else if(userRepo.findById(userId) == null)
+            throw new RuntimeException("User not found");
+
+        return userRepo.findById(userId).get();
     }
 
     @Override
@@ -84,7 +145,7 @@ public class BlogService implements IBlogService {
         Set<String> categories = new HashSet<String>();
 
         for(Blog blog : blogRepo.findAll())
-            categories.add(blog.getBCategory());
+            categories.add(blog.getCategory());
 
         List<String> categoriesList = List.copyOf(categories);
 
@@ -93,7 +154,21 @@ public class BlogService implements IBlogService {
 
     @Override
     public List<Blog> getRecentBlogs() {
-        return blogRepo.findTop5ByOrderByBCreatedOnDesc();
+        return blogRepo.findTop5ByOrderByCreatedOnDesc();
+    }
+
+    @Override
+    public List<Blog> getBlogsByCategory(String category) {
+
+        if(category == null)
+            throw new RuntimeException("Category cannot be null");
+
+        List<Blog> blogs = blogRepo.findByCategory(category);
+
+        if(blogs == null)
+            throw new RuntimeException("No blogs found");
+
+        return blogs;
     }
     
 }

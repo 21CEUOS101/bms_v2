@@ -23,6 +23,10 @@ import com.projects.blog.Models.User;
 import com.projects.blog.Security.JwtHelper;
 import com.projects.blog.Services.UserService;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true", allowedHeaders = "*", exposedHeaders = "Authorization" , methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
@@ -84,7 +88,16 @@ public class AuthController {
 
     @PostMapping("/create-user")
     public User createUser(@RequestBody User user) {
-        user.setUPassword(passwordEncoder.encode(user.getUPassword()));
+
+        // set createdOn to current time
+        LocalDateTime now = LocalDateTime.now();
+        user.setCreatedOn(now.toString());
+
+        user.setBlogs(new ArrayList<String>());
+        user.setLikes(new ArrayList<String>());
+        user.setComments(new ArrayList<String>());
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         System.out.println(user);
         return userService.createUser(user);
     }

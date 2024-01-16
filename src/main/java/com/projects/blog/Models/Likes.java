@@ -16,16 +16,12 @@ import lombok.NoArgsConstructor;
 public class Likes {
     
     @Id
-    private String lId;
+    private String id;
 
-    @JsonIgnore
-    @DBRef
-    private User lUser;
+    private String user;
 
-    @JsonIgnore
-    @DBRef
-    private Blog lBlog;
+    private String blog;
 
-    private String lCreatedOn;
+    private String createdOn;
 
 }

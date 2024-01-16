@@ -19,36 +19,30 @@ import lombok.NoArgsConstructor;
 public class Blog {
     
     @Id
-    private String bId;
+    private String id;
 
-    private String bTitle;
+    private String title;
 
-    private String bContent;
+    private String content;
 
-    private String bImage;
+    private String image;
 
-    private String bCategory;
+    private String category;
 
-    private List<String> bTags = new ArrayList<>();
+    private List<String> tags;
 
-    private String bSlug;
+    private String slug;
 
-    private String bExcerpt;
+    private String excerpt;
 
-    @JsonIgnore
-    @DBRef
-    private User bAuthor;
+    private String author;
 
-    private String bCreatedOn;
+    private String createdOn;
 
-    private String bUpdatedOn;
+    private String updatedOn;
 
-    @JsonIgnore
-    @DBRef
-    private List<Likes> bLikes = new ArrayList<>();
+    private List<String> likes;
 
-    @JsonIgnore
-    @DBRef
-    private List<Comments> bComments = new ArrayList<>();
+    private List<String> comments;
 
 }

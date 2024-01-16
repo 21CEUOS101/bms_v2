@@ -24,5 +24,7 @@ public interface IBlogService {
     public List<String> getAllCategories();
 
     public List<Blog> getRecentBlogs();
+
+    public List<Blog> getBlogsByCategory(String category);
     
 }

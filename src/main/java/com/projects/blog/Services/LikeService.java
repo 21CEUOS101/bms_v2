@@ -1,11 +1,14 @@
 package com.projects.blog.Services;
+
+// imports
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Random;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-
 import com.projects.blog.IServices.ILikeService;
 import com.projects.blog.Models.Blog;
 import com.projects.blog.Models.Likes;
@@ -18,56 +21,118 @@ import com.projects.blog.Repo.UserRepo;
 @Service
 public class LikeService implements ILikeService {
 
+    // dependency injections
+    @Autowired
     private BlogRepo blogRepo;
+
+    @Autowired
     private LikesRepo likesRepo;
+
+    @Autowired
     private UserRepo userRepo;
+
+    // services
 
     @Override
     public void likeBlog(String blogId, String userId) {
 
+
+        if(blogRepo.findById(blogId).orElse(null) == null)
+            throw new RuntimeException("Blog not found");
+        else if(userRepo.findById(userId).orElse(null) == null)
+            throw new RuntimeException("User not found");
+        else if(likesRepo.findByUserAndBlog(userId, blogId) != null)
+            throw new RuntimeException("Like already exists");
+
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
+        Random rand = new Random();
+        int num = rand.nextInt(1000000);
+
         Likes like = new Likes();
-        like.setLBlog(blogRepo.findById(blogId).get());
-        like.setLUser(userRepo.findById(userId).get());
-        like.setLCreatedOn(LocalDate.now().format(formatter));
-        like.setLId(userId + blogId);
+        like.setBlog(blogId);
+        like.setUser(userId);
+        like.setCreatedOn(LocalDate.now().format(formatter));
+        like.setId(userId + blogId + String.valueOf(num));
 
-        likesRepo.save(like);
+        try{
+            likesRepo.save(like);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException("Like not saved");
+        }
 
-        Blog blog = blogRepo.findById(blogId).orElse(null);
-        blog.getBLikes().add(like);
-        blogRepo.save(blog);
+        try{
+            Blog blog = blogRepo.findById(blogId).orElse(null);
 
-        User user = userRepo.findById(userId).orElse(null);
-        user.getULikes().add(like);
-        userRepo.save(user);
+            if(blog.getLikes() == null)
+                blog.setLikes(new ArrayList<String>());
+
+            blog.getLikes().add(like.getId());
+            blogRepo.save(blog);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException("Blog not updated");
+        }
+
+        try{
+            User user = userRepo.findById(userId).orElse(null);
+
+            if(user.getLikes() == null)
+                user.setLikes(new ArrayList<String>());
+
+            user.getLikes().add(like.getId());
+            userRepo.save(user);
+        }
+        catch(Exception e){
+            throw new RuntimeException("User not updated");
+        }
 
     }
 
     @Override
     public void unlikeBlog(String blogId, String userId) {
-    
-        Likes like = likesRepo.findById(userId + blogId).orElse(null);
 
-        likesRepo.deleteById(userId + blogId);
+        if(blogRepo.findById(blogId).orElse(null) == null)
+            throw new RuntimeException("Blog not found");
+        else if(userRepo.findById(userId).orElse(null) == null)
+            throw new RuntimeException("User not found");
+        else if(likesRepo.findByUserAndBlog(userId, blogId) == null)
+            throw new RuntimeException("Like does not exist");
 
-        Blog blog = blogRepo.findById(blogId).orElse(null);
-        blog.getBLikes().remove(like);
-        blogRepo.save(blog);
+        Likes like = likesRepo.findByUserAndBlog(userId, blogId);
+        
+        try{
+            Blog blog = blogRepo.findById(blogId).orElse(null);
+            blog.getLikes().remove(like.getId());
+            blogRepo.save(blog);
+        }
+        catch(Exception e){
+            throw new RuntimeException("Blog not updated");
+        }
+        
+        try{
+            User user = userRepo.findById(userId).orElse(null);
+            user.getLikes().remove(like.getId());
+            userRepo.save(user);
+        }
+        catch(Exception e){
+            throw new RuntimeException("User not updated");
+        }
 
-        User user = userRepo.findById(userId).orElse(null);
-        user.getULikes().remove(like);
-        userRepo.save(user);
+        likesRepo.deleteByUserAndBlog(userId, blogId);
     }
 
     @Override
     public List<Likes> getLikesByBlog(String blogId) {
-        return blogRepo.findById(blogId).get().getBLikes();
+        return likesRepo.findByBlog(blogId);
     }
 
     @Override
     public List<Likes> getLikesByUser(String userId) {
-        return userRepo.findById(userId).get().getULikes();
+        return likesRepo.findByUser(userId);
     }
 }

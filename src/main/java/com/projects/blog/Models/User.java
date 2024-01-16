@@ -19,35 +19,29 @@ import lombok.NoArgsConstructor;
 public class User implements UserDetails{
     
     @Id
-    private String uId;
+    private String id;
 
-    private String uName;
+    private String name;
 
-    private String uEmail;
+    private String email;
 
-    private String uPassword;
+    private String password;
 
-    private String uRole;
+    private String role;
 
-    private String uImage;
+    private String image;
 
-    private String uAbout;
+    private String about;
 
-    private String uGender;
+    private String gender;
 
     private String createdOn;
 
-    @JsonIgnore
-    @DBRef
-    private List<Blog> blogs = new ArrayList<>();
+    private List<String> blogs;
 
-    @JsonIgnore
-    @DBRef
-    private List<Likes> uLikes  = new ArrayList<>();
+    private List<String> likes;
 
-    @JsonIgnore
-    @DBRef
-    private List<Comments> uComments = new ArrayList<>();
+    private List<String> comments;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -56,12 +50,12 @@ public class User implements UserDetails{
 
     @Override
     public String getPassword() {
-        return this.uPassword;
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return this.uId ;
+        return this.id ;
     }
 
     @Override

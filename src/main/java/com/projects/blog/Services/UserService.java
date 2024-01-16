@@ -1,12 +1,11 @@
 package com.projects.blog.Services;
 
+// imports
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-
 import com.projects.blog.IServices.IUserService;
 import com.projects.blog.Models.User;
 import com.projects.blog.Repo.UserRepo;
@@ -15,13 +14,16 @@ import com.projects.blog.Repo.UserRepo;
 @Service
 public class UserService implements IUserService {
 
+    // dependency injections
     @Autowired
     private UserRepo userRepo;
 
+    // services
+
     @Override
     public User createUser(User user) {
-        System.out.println(user.getUId());
-        if(userRepo.findById(user.getUId()).isPresent())
+        System.out.println(user.getId());
+        if(userRepo.findById(user.getId()).isPresent())
         {
             System.out.println("User already exists");
             return null;
@@ -58,7 +60,7 @@ public class UserService implements IUserService {
     public List<String> getAllUId() {
         List<String> uIds = new ArrayList<>();
         for(User user : userRepo.findAll())
-            uIds.add(user.getUId());
+            uIds.add(user.getId());
         return uIds;
     }
 

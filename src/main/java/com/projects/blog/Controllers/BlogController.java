@@ -1,4 +1,6 @@
 package com.projects.blog.Controllers;
+
+// imports
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -30,6 +32,7 @@ import com.projects.blog.Requests.CommentRequest;
 @RequestMapping("/api")
 public class BlogController {
 
+    // necessary dependencies
     @Autowired
     private IUserService userService;
 
@@ -42,46 +45,92 @@ public class BlogController {
     @Autowired
     private ICommentService commentService;
 
+    // controllers
+
     @GetMapping("/recent-blogs")
     public List<Blog> getRecentBlogs() {
-        return blogService.getRecentBlogs();
+        try{
+            List<Blog> blogs = blogService.getRecentBlogs();
+            return blogs;
+        }
+        catch(Exception e){
+            throw new RuntimeException("No blogs found");
+        }
     }
 
     @GetMapping("/blogs")
     public List<Blog> getBlogs() {
-        List<Blog> blogs = blogService.getBlogs();
-
-        return blogs;
+        try{
+            List<Blog> blogs = blogService.getBlogs();
+            return blogs;
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @GetMapping("/blogs/{id}")
     public Blog getBlog(@PathVariable("id") String id) {
-        return blogService.getBlog(id);
+        try{
+            Blog blog = blogService.getBlog(id);
+            return blog;
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
     
     @GetMapping("/blogs/{id}/likes")
     public List<Likes> getLikesByBlog(@PathVariable("id") String id) {
-        return likeService.getLikesByBlog(id);
+        try{
+            List<Likes> likes = likeService.getLikesByBlog(id);
+            return likes;
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @GetMapping("/blogs/{id}/comments")
     public List<Comments> getCommentsByBlog(@PathVariable("id") String id) {
-        List<Comments> comments = commentService.getCommentsByBlog(id);
-
-        if(comments.size() == 0)
-            System.out.println("No comments found");
         
-        return comments;
+        try{
+            List<Comments> comments = commentService.getCommentsByBlog(id);
+            return comments;
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+        
     }
 
     @GetMapping("/blogs/{id}/user")
     public User getUserByBlog(@PathVariable("id") String id) {
-        return blogService.findUserByBlog(id);
+        
+        try{
+            User user = blogService.findUserByBlog(id);
+            return user;
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @GetMapping("/blogs/categories")
     public List<String> getAllCategories() {
-        return blogService.getAllCategories();
+        try{
+            List<String> categories = blogService.getAllCategories();
+            return categories;
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @PostMapping("/blogs")
@@ -101,31 +150,40 @@ public class BlogController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         User user = userService.getUser(userId);
         Blog blog = new Blog();
-        blog.setBId(userId + "_" + System.currentTimeMillis());
-        blog.setBTitle(title);
-        blog.setBContent(content);
-        blog.setBAuthor(user);
-        blog.setBSlug(slug);
-        blog.setBCategory(category);
-        blog.setBTags(tags);
-        blog.setBImage(image);
-        blog.setBUpdatedOn(null);
-        blog.setBCreatedOn(LocalDate.now().format(formatter));
-        blog.setBExcerpt(excerpt);
-        return blogService.createBlog(blog);
+        blog.setId(userId + "_" + System.currentTimeMillis());
+        blog.setTitle(title);
+        blog.setContent(content);
+        blog.setAuthor(user.getId());
+        blog.setSlug(slug);
+        blog.setCategory(category);
+        blog.setTags(tags);
+        blog.setImage(image);
+        blog.setUpdatedOn(null);
+        blog.setCreatedOn(LocalDate.now().format(formatter));
+        blog.setExcerpt(excerpt);
+        
+        try{
+            blogService.createBlog(blog);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+         
+        return blog;
     }
 
-    @PutMapping("/blogs")
+    @PutMapping("/blogs/{id}")
     public Blog updateBlog(
-            @RequestParam("blogId") String blogId,
+            @PathVariable("id") String blogId,
             @RequestBody BlogRequest blogRequest
     ) 
     {
         String userId = blogRequest.getUserId();
-    
-        if(!blogId.equals(userId))
+
+        if(!userId.equals(blogService.getBlog(blogId).getAuthor()))
             throw new RuntimeException("User not authorized to update blog");
-        
+
         String title = blogRequest.getTitle();
         String content = blogRequest.getContent();
         String slug = blogRequest.getSlug();
@@ -136,78 +194,135 @@ public class BlogController {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         Blog blog = blogService.getBlog(blogId);
-        blog.setBTitle(title);
-        blog.setBContent(content);
-        blog.setBSlug(slug);
-        blog.setBCategory(category);
-        blog.setBTags(tags);
-        blog.setBImage(image);
-        blog.setBUpdatedOn(LocalDate.now().format(formatter));
-        blog.setBExcerpt(excerpt);
-        return blogService.updateBlog(blog);
+        blog.setTitle(title);
+        blog.setContent(content);
+        blog.setSlug(slug);
+        blog.setCategory(category);
+        blog.setTags(tags);
+        blog.setImage(image);
+        blog.setUpdatedOn(LocalDate.now().format(formatter));
+        blog.setExcerpt(excerpt);
+        
+        try{
+            blogService.updateBlog(blog);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+
+        return blog;
     }
 
     @PostMapping("/blogs/{id}/like")
-    public void likeBlog(@PathVariable("id") String id, @RequestBody String userId) {
-        likeService.likeBlog(id, userId);
+    public void likeBlog(@PathVariable("id") String id, @RequestParam("userId") String userId) {
+        try{
+            likeService.likeBlog(id, userId);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @PostMapping("/blogs/{id}/unlike")
-    public void unlikeBlog(@PathVariable("id") String id, @RequestBody String userId) {
-        likeService.unlikeBlog(id, userId);
+    public void unlikeBlog(@PathVariable("id") String id, @RequestParam("userId") String userId) {
+        try{
+            likeService.unlikeBlog(id, userId);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @PostMapping("/blogs/{id}/comment")
     public Comments commentBlog(
+            @PathVariable("id") String id,
             @RequestBody CommentRequest commentRequest
     ) 
     {
-        String userId = commentRequest.getUserId();
         String content = commentRequest.getComments();
-        String blogId = commentRequest.getBlogId();
+        String blogId = id;
+        
+        if(!blogId.equals(blogService.getBlog(blogId).getId()))
+            throw new RuntimeException("Blog not authorized to comment on blog");
+        
+        String userId = commentRequest.getUserId();
 
+        if(!userId.equals(blogService.getBlog(blogId).getAuthor()))
+            throw new RuntimeException("User not authorized to comment on blog");
+        
+        
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         User user = userService.getUser(userId);
         Blog blog = blogService.getBlog(blogId);
         Comments comment = new Comments();
-        comment.setCId(userId + blogId + "_" + System.currentTimeMillis());
-        comment.setCContent(content);
-        comment.setCBlog(blog);
-        comment.setCUser(user);
-        comment.setCCreatedOn(LocalDate.now().format(formatter));
-        return commentService.createComment(comment);
+        comment.setId(userId + blogId + "_" + System.currentTimeMillis());
+        comment.setContent(content);
+        comment.setBlog(blog.getId());
+        comment.setUser(user.getId());
+        comment.setCreatedOn(LocalDate.now().format(formatter));
+        
+        try{
+            commentService.createComment(comment);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+
+        return comment;
     }
 
-    @PutMapping("/blogs/{id}/comment")
+    @PutMapping("/blogs/{id}/comment/{cid}")
     public Comments updateComment(
-            @PathVariable("cid") String cid, 
+            @PathVariable("cid") String cid,
+            @PathVariable("id") String id,
             @RequestBody CommentRequest commentRequest
     ) 
     {
         String userId = commentRequest.getUserId();
         String content = commentRequest.getComments();
-        String blogId = commentRequest.getBlogId();
+        String blogId = id;
 
-        if(userService.getUser(userId) != commentService.getComment(cid).getCUser())
+        if(!userId.equals(commentService.getComment(cid).getUser()))
             throw new RuntimeException("User not authorized to update comment");
 
-        if(blogService.getBlog(blogId) != commentService.getComment(cid).getCBlog())
+        if(!blogId.equals(commentService.getComment(cid).getBlog()))
             throw new RuntimeException("Blog not authorized to update comment");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         Comments comment = commentService.getComment(cid);
-        comment.setCContent(content);
-        comment.setCUpdatedOn(LocalDate.now().format(formatter));
-        return commentService.updateComment(comment);
+        comment.setContent(content);
+        comment.setUpdatedOn(LocalDate.now().format(formatter));
+        
+        try{
+            commentService.updateComment(comment);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+
+        return comment;
     }
 
     @DeleteMapping("/blogs/{id}/comment")
     public void deleteComment(@PathVariable("id") String id) {
-        commentService.deleteComment(id);
+        try{
+            commentService.deleteComment(id);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @DeleteMapping("/blogs/{id}")
     public void deleteBlog(@PathVariable("id") String id) {
-        blogService.deleteBlog(id);
+        try{
+            blogService.deleteBlog(id);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

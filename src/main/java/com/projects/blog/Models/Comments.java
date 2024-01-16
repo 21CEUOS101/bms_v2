@@ -16,20 +16,16 @@ import lombok.NoArgsConstructor;
 public class Comments {
 
     @Id
-    private String cId;
+    private String id;
 
-    private String cContent;
+    private String content;
 
-    private String cCreatedOn;
+    private String createdOn;
 
-    private String cUpdatedOn;
+    private String updatedOn;
 
-    @JsonIgnore
-    @DBRef
-    private User cUser;
+    private String user;
 
-    @JsonIgnore
-    @DBRef
-    private Blog cBlog;
+    private String blog;
     
 }

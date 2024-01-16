@@ -1,15 +1,14 @@
 package com.projects.blog.Controllers;
+
+// imports
 import java.security.Principal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,6 +28,7 @@ import com.projects.blog.Models.User;
 @RequestMapping("/api")
 public class UserController {
 
+    // necessary dependencies
     @Autowired
     private IUserService userService;
 
@@ -44,6 +44,7 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // controllers
 
     @GetMapping("/current-user")
     public String currentUser(Principal principal) {
@@ -52,41 +53,102 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> getUsers() {
-        return userService.getUsers();
+        try{
+            List<User> users = userService.getUsers();
+            return users;
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @GetMapping("/users/{id}")
     public User getUser(@PathVariable("id") String id) {
-        return userService.getUser(id);
+        try{
+            User user = userService.getUser(id);
+            return user;
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @GetMapping("/users/{id}/blogs")
     public List<Blog> getBlogsByUser(@PathVariable("id") String id) {
-        return blogService.getBlogsByUser(id);
+        try{
+            List<Blog> blogs = blogService.getBlogsByUser(id);
+            return blogs;
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @GetMapping("/users/{id}/likes")
     public List<Likes> getLikesByUser(@PathVariable("id") String id) {
-        return likeService.getLikesByUser(id);
+        try{
+            List<Likes> likes = likeService.getLikesByUser(id);
+            return likes;
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @GetMapping("/users/{id}/comments")
     public List<Comments> getCommentsByUser(@PathVariable("id") String id) {
-        return commentService.getCommentsByUser(id);
+        try{
+            List<Comments> comments = commentService.getCommentsByUser(id);
+            return comments;
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @GetMapping("/users/uid")
     public List<String> getAllUId() {
-        return userService.getAllUId();
+        try{
+            List<String> uList = userService.getAllUId();
+            return uList;
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @PutMapping("/users")
     public User updateUser(@RequestBody User user) {
-        return userService.updateUser(user);
+
+        if(user == null)
+        {
+            System.out.println("User cannot be null");
+            return null;
+        }
+
+        try{
+            userService.updateUser(user);
+            return user;
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
     
     @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable("id") String id) {
-        userService.deleteUser(id);
+        try{
+            userService.deleteUser(id);
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 }
