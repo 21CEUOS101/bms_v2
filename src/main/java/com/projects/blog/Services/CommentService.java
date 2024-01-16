@@ -37,6 +37,10 @@ public class CommentService implements ICommentService {
         
         try{
             User user = userRepo.findById(comment.getUser()).get();
+
+            if(user.getComments() == null)
+                user.setComments(new java.util.ArrayList<String>());
+
             user.getComments().add(comment.getId());
             userRepo.save(user);
         }
@@ -46,6 +50,10 @@ public class CommentService implements ICommentService {
 
         try{
             Blog blog = blogRepo.findById(comment.getBlog()).get();
+
+            if(blog.getComments() == null)
+                blog.setComments(new java.util.ArrayList<String>());
+
             blog.getComments().add(comment.getId());
             blogRepo.save(blog);
         }
@@ -73,6 +81,10 @@ public class CommentService implements ICommentService {
 
         try{
             User user = userRepo.findById(comment.getUser()).get();
+
+            if(user.getComments() == null)
+                user.setComments(new java.util.ArrayList<String>());
+
             user.getComments().add(comment.getId());
             userRepo.save(user);
         }
@@ -82,6 +94,10 @@ public class CommentService implements ICommentService {
 
         try{
             Blog blog = blogRepo.findById(comment.getBlog()).get();
+
+            if(blog.getComments() == null)
+                blog.setComments(new java.util.ArrayList<String>());
+
             blog.getComments().add(comment.getId());
             blogRepo.save(blog);
         }
@@ -94,10 +110,14 @@ public class CommentService implements ICommentService {
 
     @Override
     public void deleteComment(String id) {
+
+        Comments comment = commentsRepo.findById(id).get();
         
         try{
-            User user = userRepo.findById(commentsRepo.findById(id).get().getUser()).get();
-            user.getComments().remove(id);
+            User user = userRepo.findById(comment.getUser()).get();
+            List<String> comments = user.getComments();
+            comments.remove(id);
+            user.setComments(comments);
             userRepo.save(user);
         }
         catch(Exception e){
@@ -105,8 +125,10 @@ public class CommentService implements ICommentService {
         }
         
         try{
-            Blog blog = blogRepo.findById(commentsRepo.findById(id).get().getBlog()).get();
-            blog.getComments().remove(id);
+            Blog blog = blogRepo.findById(comment.getBlog()).get();
+            List<String> comments = blog.getComments();
+            comments.remove(id);
+            blog.setComments(comments);
             blogRepo.save(blog);
         }
         catch(Exception e){

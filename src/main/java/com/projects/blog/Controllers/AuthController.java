@@ -98,7 +98,7 @@ public class AuthController {
         user.setComments(new ArrayList<String>());
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        System.out.println(user);
+        
         return userService.createUser(user);
     }
     

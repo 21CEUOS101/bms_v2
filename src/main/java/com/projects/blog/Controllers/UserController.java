@@ -123,8 +123,8 @@ public class UserController {
         }
     }
 
-    @PutMapping("/users")
-    public User updateUser(@RequestBody User user) {
+    @PutMapping("/users/{id}")
+    public User updateUser( @PathVariable("id") String id ,@RequestBody User user) {
 
         if(user == null)
         {
@@ -132,9 +132,22 @@ public class UserController {
             return null;
         }
 
+        User u = userService.getUser(id);
+        u.setAbout(user.getAbout());
+        u.setBlogs(user.getBlogs());
+        u.setComments(user.getComments());
+        u.setCreatedOn(user.getCreatedOn());
+        u.setImage(user.getImage());
+        u.setEmail(user.getEmail());
+        u.setGender(user.getGender());
+        u.setLikes(user.getLikes());
+        u.setName(user.getName());
+        u.setPassword(passwordEncoder.encode(user.getPassword()));
+        u.setRole(user.getRole());
+
         try{
-            userService.updateUser(user);
-            return user;
+            userService.updateUser(u);
+            return u;
         }
         catch(Exception e){
             System.out.println(e.getMessage());

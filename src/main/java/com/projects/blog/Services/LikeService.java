@@ -107,7 +107,9 @@ public class LikeService implements ILikeService {
         
         try{
             Blog blog = blogRepo.findById(blogId).orElse(null);
-            blog.getLikes().remove(like.getId());
+            List<String> likes = blog.getLikes();
+            likes.remove(like.getId());
+            blog.setLikes(likes);
             blogRepo.save(blog);
         }
         catch(Exception e){
@@ -116,7 +118,9 @@ public class LikeService implements ILikeService {
         
         try{
             User user = userRepo.findById(userId).orElse(null);
-            user.getLikes().remove(like.getId());
+            List<String> likes = user.getLikes();
+            likes.remove(like.getId());
+            user.setLikes(likes);
             userRepo.save(user);
         }
         catch(Exception e){

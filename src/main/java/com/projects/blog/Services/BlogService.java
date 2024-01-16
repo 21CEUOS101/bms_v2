@@ -93,7 +93,9 @@ public class BlogService implements IBlogService {
 
         try{
             User user = userRepo.findById(blogRepo.findById(id).get().getAuthor()).get();
-            user.getBlogs().remove(id);
+            List<String> blogs = user.getBlogs();
+            blogs.remove(id);
+            user.setBlogs(blogs);
             userRepo.save(user);
         }
         catch (Exception e) {

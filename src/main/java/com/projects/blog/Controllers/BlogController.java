@@ -306,10 +306,17 @@ public class BlogController {
         return comment;
     }
 
-    @DeleteMapping("/blogs/{id}/comment")
-    public void deleteComment(@PathVariable("id") String id) {
+    @DeleteMapping("/blogs/{id}/comment/{cid}")
+    public void deleteComment(@PathVariable("id") String id, @PathVariable("cid") String cid) {
+        
+        if(!id.equals(commentService.getComment(cid).getBlog()))
+        {
+            System.out.println("Blog not authorized to delete comment");
+            return;
+        }
+
         try{
-            commentService.deleteComment(id);
+            commentService.deleteComment(cid);
         }
         catch (Exception e) {
             System.out.println(e.getMessage());

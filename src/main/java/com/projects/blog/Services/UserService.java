@@ -44,11 +44,10 @@ public class UserService implements IUserService {
     @Override
     public void deleteUser(String id) {
         
+        if(userRepo.findById(id).orElse(null) == null)
+            throw new RuntimeException("User not found");
+
         userRepo.deleteById(id);
-
-        if(userRepo.findById(id) != null)
-            throw new RuntimeException("User not deleted");
-
     }
 
     @Override
@@ -60,7 +59,9 @@ public class UserService implements IUserService {
     public List<String> getAllUId() {
         List<String> uIds = new ArrayList<>();
         for(User user : userRepo.findAll())
+        {
             uIds.add(user.getId());
+        }
         return uIds;
     }
 

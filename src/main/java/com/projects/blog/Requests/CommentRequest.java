@@ -8,6 +8,5 @@ import lombok.Data;
 public class CommentRequest {
     
     private String userId;
-    private String blogId;
     private String comments;
 }
