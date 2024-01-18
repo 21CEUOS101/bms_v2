@@ -247,10 +247,6 @@ public class BlogController {
             throw new RuntimeException("Blog not authorized to comment on blog");
         
         String userId = commentRequest.getUserId();
-
-        if(!userId.equals(blogService.getBlog(blogId).getAuthor()))
-            throw new RuntimeException("User not authorized to comment on blog");
-        
         
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         User user = userService.getUser(userId);

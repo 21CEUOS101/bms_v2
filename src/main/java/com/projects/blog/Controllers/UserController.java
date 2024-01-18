@@ -132,6 +132,12 @@ public class UserController {
             return null;
         }
 
+        if(!user.getId().equals(id))
+        {
+            System.out.println("User id mismatch");
+            return null;
+        }
+
         User u = userService.getUser(id);
         u.setAbout(user.getAbout());
         u.setBlogs(user.getBlogs());
